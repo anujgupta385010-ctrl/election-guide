@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Election Process Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- Firebase SDK (Google Cloud) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+    import { getAnalytics, logEvent } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-analytics.js";
+
+    // Your Firebase project config — replace with values from Firebase Console
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID",
+      measurementId: "YOUR_MEASUREMENT_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    // Expose logEvent globally so other scripts can call window.trackEvent()
+    window.trackEvent = (eventName, params = {}) => {
+      try { logEvent(analytics, eventName, params); } catch(e) {}
+    };
+
+    // Track initial page view
+    logEvent(analytics, 'page_view', { page_title: 'Election Process Guide' });
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #1a3a5c;
+      --accent-light: #e8f0f8;
+      --accent-mid: #2e6da4;
+      --gold: #b8860b;
+      --gold-light: #fdf8e8;
+      --success: #1a6b3c;
+      --success-bg: #eaf5ee;
+      --muted: #6b7280;
+      --border: rgba(0,0,0,0.1);
+      --card-bg: #ffffff;
+      --page-bg: #f5f6f8;
+      --text-primary: #111827;
+      --text-secondary: #6b7280;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --accent-light: #1e3450;
+        --accent-mid: #60a5d8;
+        --gold: #d4a02a;
+        --gold-light: #2a2010;
+        --success: #4ade80;
+        --success-bg: #14291e;
+        --muted: #9ca3af;
+        --border: rgba(255,255,255,0.1);
+        --card-bg: #1e2330;
+        --page-bg: #141720;
+        --text-primary: #f3f4f6;
+        --text-secondary: #9ca3af;
+      }
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--page-bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 720px;
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      border: 0.5px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    }
+
+    /* Header */
+    .header {
+      background: var(--card-bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 1.5rem 1.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .ballot-icon {
+      width: 44px; height: 44px; flex-shrink: 0;
+      background: var(--accent-light); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ballot-icon svg { width: 24px; height: 24px; stroke: var(--accent-mid); fill: none; stroke-width: 1.8; }
+    .header-text h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px; font-weight: 400;
+      color: var(--text-primary); line-height: 1.2;
+    }
+    .header-text p { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: var(--page-bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0 1.25rem;
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 11px 16px; font-size: 13px; font-weight: 500;
+      color: var(--text-secondary); cursor: pointer; border: none;
+      background: none; border-bottom: 2px solid transparent;
+      white-space: nowrap; transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+    }
+    .tab.active { color: var(--accent-mid); border-bottom-color: var(--accent-mid); }
+    .tab:hover:not(.active) { color: var(--text-primary); }
+
+    /* Panels */
+    .panel { display: none; padding: 1.5rem 1.75rem; }
+    .panel.active { display: block; }
+
+    /* Phase Grid */
+    .phase-intro { font-size: 13px; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.6; }
+    .phase-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 1.25rem; }
+    .phase-card {
+      background: var(--card-bg); border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 1rem; cursor: pointer;
+      transition: border-color 0.15s; position: relative;
+    }
+    .phase-card:hover { border-color: var(--accent-mid); }
+    .phase-card.selected { border-color: var(--accent-mid); background: var(--accent-light); }
+    .phase-num { font-size: 11px; font-weight: 500; color: var(--accent-mid); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .phase-title { font-size: 14px; font-weight: 500; color: var(--text-primary); line-height: 1.3; }
+    .phase-duration { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+    .phase-detail {
+      background: var(--card-bg); border: 0.5px solid var(--accent-mid);
+      border-radius: var(--radius-lg); padding: 1.25rem;
+    }
+    .phase-detail h3 {
+      font-family: 'DM Serif Display', serif; font-size: 18px; font-weight: 400;
+      color: var(--text-primary); margin-bottom: 0.5rem;
+    }
+    .phase-detail p { font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 1rem; }
+    .steps-list { list-style: none; }
+    .steps-list li {
+      display: flex; gap: 10px; padding: 9px 0;
+      border-bottom: 0.5px solid var(--border); font-size: 13px; align-items: flex-start;
+      color: var(--text-primary);
+    }
+    .steps-list li:last-child { border-bottom: none; }
+    .step-dot {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--accent-light); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; margin-top: 0px;
+    }
+    .step-dot span { font-size: 10px; font-weight: 500; color: var(--accent-mid); }
+
+    /* Timeline */
+    .tl-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 1rem; }
+    .timeline-wrap { position: relative; padding-left: 22px; }
+    .tl-line { position: absolute; left: 7px; top: 8px; bottom: 8px; width: 1px; background: var(--border); }
+    .tl-item { position: relative; margin-bottom: 1rem; }
+    .tl-dot {
+      position: absolute; left: -22px; top: 5px; width: 14px; height: 14px;
+      border-radius: 50%; border: 2px solid var(--card-bg); background: #c5d8eb; transition: background 0.2s;
+    }
+    .tl-item.done .tl-dot { background: var(--accent-mid); }
+    .tl-item.active-tl .tl-dot { background: var(--accent); box-shadow: 0 0 0 3px #d0e3f3; }
+    .tl-content {
+      background: var(--card-bg); border: 0.5px solid var(--border);
+      border-radius: var(--radius-md); padding: 0.9rem 1rem; cursor: pointer; transition: border-color 0.15s;
+    }
+    .tl-item.active-tl .tl-content { border-color: var(--accent-mid); }
+    .tl-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .tl-title { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+    .tl-date { font-size: 11px; color: var(--text-secondary); white-space: nowrap; }
+    .tl-desc { font-size: 12px; color: var(--text-secondary); margin-top: 6px; line-height: 1.6; display: none; }
+    .tl-badge {
+      display: inline-block; margin-top: 7px; font-size: 10px; font-weight: 500;
+      padding: 2px 10px; border-radius: 20px; letter-spacing: 0.03em;
+    }
+    .tl-badge.done { background: var(--success-bg); color: var(--success); }
+    .tl-badge.active { background: var(--accent-light); color: var(--accent-mid); }
+    .tl-badge.upcoming { background: var(--gold-light); color: var(--gold); }
+
+    /* Glossary */
+    .search-bar { margin-bottom: 1rem; }
+    .search-bar input {
+      width: 100%; padding: 9px 14px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+      border: 0.5px solid var(--border); border-radius: var(--radius-md);
+      background: var(--card-bg); color: var(--text-primary);
+    }
+    .search-bar input:focus { outline: none; border-color: var(--accent-mid); }
+    .glossary-grid { display: grid; gap: 8px; }
+    .term-card {
+      background: var(--card-bg); border: 0.5px solid var(--border);
+      border-radius: var(--radius-md); padding: 0.9rem 1rem; cursor: pointer; transition: border-color 0.15s;
+    }
+    .term-card.open { border-color: var(--accent-mid); }
+    .term-card:hover { border-color: rgba(46,109,164,0.4); }
+    .term-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .term-word { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+    .term-tag { font-size: 10px; color: var(--accent-mid); background: var(--accent-light); padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+    .term-def { font-size: 12px; color: var(--text-secondary); margin-top: 8px; line-height: 1.65; display: none; }
+    .term-card.open .term-def { display: block; }
+
+    /* Chat */
+    .chat-history {
+      min-height: 240px; max-height: 340px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 12px;
+      padding-bottom: 12px; margin-bottom: 1rem;
+    }
+    .msg { display: flex; gap: 8px; align-items: flex-start; }
+    .msg.user { flex-direction: row-reverse; }
+    .msg-avatar {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500;
+    }
+    .msg.bot .msg-avatar { background: var(--accent-light); color: var(--accent-mid); }
+    .msg.user .msg-avatar { background: var(--page-bg); color: var(--text-secondary); border: 0.5px solid var(--border); }
+    .msg-bubble {
+      max-width: 82%; font-size: 13px; line-height: 1.7; padding: 10px 14px;
+      border-radius: var(--radius-lg); border: 0.5px solid var(--border);
+      background: var(--card-bg); color: var(--text-primary);
+    }
+    .msg.user .msg-bubble { background: var(--accent-light); color: var(--text-primary); }
+
+    .typing { display: flex; gap: 4px; padding: 4px 2px; align-items: center; }
+    .typing span {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--accent-mid); opacity: 0.4;
+      animation: blink 1.2s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+    .quick-qs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .quick-q {
+      font-size: 12px; padding: 5px 13px; border-radius: 20px;
+      border: 0.5px solid var(--border); cursor: pointer;
+      background: var(--card-bg); color: var(--text-primary);
+      transition: border-color 0.15s; font-family: 'DM Sans', sans-serif;
+    }
+    .quick-q:hover { border-color: var(--accent-mid); color: var(--accent-mid); }
+
+    .chat-input-row { display: flex; gap: 8px; }
+    .chat-input-row input {
+      flex: 1; padding: 10px 14px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+      border: 0.5px solid var(--border); border-radius: var(--radius-md);
+      background: var(--card-bg); color: var(--text-primary);
+    }
+    .chat-input-row input:focus { outline: none; border-color: var(--accent-mid); }
+    .chat-input-row button {
+      padding: 10px 20px; font-size: 13px; font-family: 'DM Sans', sans-serif;
+      font-weight: 500; border-radius: var(--radius-md);
+      border: none; background: var(--accent-mid); color: #fff; cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .chat-input-row button:hover { opacity: 0.85; }
+    .chat-input-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .no-results { font-size: 13px; color: var(--text-secondary); padding: 1rem 0; }
+
+    @media (max-width: 500px) {
+      body { padding: 0; }
+      .app { border-radius: 0; box-shadow: none; }
+      .header { padding: 1.25rem; }
+      .panel { padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="ballot-icon">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 12l3 3 7-7"/></svg>
+    </div>
+    <div class="header-text">
+      <h1>Election Process Guide</h1>
+      <p>Interactive explainer &mdash; understand every step of a democratic election</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('overview',this)">Overview</button>
+    <button class="tab" onclick="switchTab('timeline',this)">Timeline</button>
+    <button class="tab" onclick="switchTab('glossary',this)">Glossary</button>
+    <button class="tab" onclick="switchTab('chat',this)">Ask the guide</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="panel-overview" class="panel active">
+    <p class="phase-intro">Select any phase below to explore what happens, why it matters, and the key steps involved.</p>
+    <div class="phase-grid" id="phase-grid"></div>
+    <div class="phase-detail" id="phase-detail"></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div id="panel-timeline" class="panel">
+    <p class="tl-label">Key milestones in a general election cycle &mdash; click any event to expand</p>
+    <div class="timeline-wrap">
+      <div class="tl-line"></div>
+      <div id="tl-items"></div>
+    </div>
+  </div>
+
+  <!-- GLOSSARY -->
+  <div id="panel-glossary" class="panel">
+    <div class="search-bar">
+      <input id="glossary-search" type="text" placeholder="Search terms..." oninput="filterGlossary()" />
+    </div>
+    <div class="glossary-grid" id="glossary-grid"></div>
+  </div>
+
+  <!-- CHAT -->
+  <div id="panel-chat" class="panel">
+    <div class="chat-history" id="chat-history"></div>
+    <div class="quick-qs">
+      <button class="quick-q" onclick="sendQ('How does voter registration work?')">Voter registration</button>
+      <button class="quick-q" onclick="sendQ('What is the electoral college?')">Electoral college</button>
+      <button class="quick-q" onclick="sendQ('How are votes counted and verified?')">Vote counting</button>
+      <button class="quick-q" onclick="sendQ('What happens if there is a tie?')">Election tie</button>
+      <button class="quick-q" onclick="sendQ('How long does an election campaign last?')">Campaign length</button>
+    </div>
+    <div class="chat-input-row">
+      <input id="chat-input" type="text" placeholder="Ask anything about elections..." onkeydown="if(event.key==='Enter')sendChat()" />
+      <button id="send-btn" onclick="sendChat()">Send</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PHASES = [
+  {
+    num:"01", title:"Candidate Filing", duration:"6–12 months before",
+    desc:"Eligible individuals formally declare their candidacy. This involves submitting paperwork, paying filing fees, and meeting legal requirements such as minimum age, citizenship, or residency.",
+    steps:["Submit declaration of candidacy to the electoral authority","Pay required filing fees or gather nominating signatures","Verify eligibility: age, citizenship, residency requirements","Receive official confirmation and ballot placement"]
+  },
+  {
+    num:"02", title:"Primary Elections", duration:"3–6 months before",
+    desc:"In multi-party systems, primaries or caucuses narrow the field. Voters within a party choose their preferred candidate who will advance to the general election.",
+    steps:["Registered party voters cast ballots for their preferred nominee","Delegates are allocated based on vote share (varies by party)","Candidates with fewest votes typically drop out","Winning candidate is officially nominated at party convention"]
+  },
+  {
+    num:"03", title:"Campaign Period", duration:"Months leading to election day",
+    desc:"Candidates actively campaign by holding rallies, running advertisements, participating in debates, and canvassing to persuade voters. Campaign finance rules govern spending and donations.",
+    steps:["Candidates register campaign committees and open accounts","Fundraising begins from donors within legal limits","Debates organised by independent bodies are broadcast","Ground teams canvass neighborhoods and register voters","Media advertising runs across TV, radio, and digital platforms"]
+  },
+  {
+    num:"04", title:"Voter Registration", duration:"Ongoing / closes before election",
+    desc:"Citizens must be on the electoral roll to vote. Deadlines vary by jurisdiction. Some places allow same-day registration; others require registration weeks in advance.",
+    steps:["Citizens submit registration forms online, by post, or in person","Eligibility is verified: age (18+), citizenship, residency","Electoral rolls are updated and published for public inspection","Corrections can be made during a specified objection period","Voter ID cards or confirmation letters are issued"]
+  },
+  {
+    num:"05", title:"Election Day", duration:"A single day (or early voting period)",
+    desc:"The culmination of the electoral process. Polling stations open for registered voters to cast secret ballots. Officials ensure the process is orderly, accessible, and fraud-free.",
+    steps:["Polling stations open (typically 7 am – 10 pm)","Voters present ID or confirmation and sign the register","A secret ballot paper is issued and marked in a private booth","Completed ballots are deposited in sealed ballot boxes","Observers from parties and civil society monitor proceedings"]
+  },
+  {
+    num:"06", title:"Counting & Results", duration:"Hours to days after polls close",
+    desc:"Ballot boxes are transported to counting centres under supervision. Votes are counted manually or by machine, results are announced, and winning candidates are declared.",
+    steps:["Ballot boxes are sealed, numbered, and transported securely","Counting agents from each party observe the count","Spoilt or questionable ballots are set aside for adjudication","Results are tallied and transmitted to central authority","Returning officer declares the official winner"]
+  }
+];
+
+const TIMELINE_ITEMS = [
+  { title:"Election date announced", date:"12 months before", desc:"The government or electoral commission formally announces the date of the election.", status:"done" },
+  { title:"Candidate filing opens", date:"10 months before", desc:"Window opens for eligible individuals to submit candidacy paperwork.", status:"done" },
+  { title:"Candidate filing closes", date:"8 months before", desc:"Deadline for all nominations. Ballot positions confirmed.", status:"done" },
+  { title:"Primary elections", date:"5–6 months before", desc:"Parties hold their selection contests to choose nominees.", status:"done" },
+  { title:"Official campaign period begins", date:"3 months before", desc:"The regulated campaign period starts. Spending and advertising rules apply.", status:"active-tl" },
+  { title:"Voter registration deadline", date:"4–6 weeks before", desc:"Last day for citizens to register or update their details on the electoral roll.", status:"upcoming" },
+  { title:"Early voting opens", date:"2 weeks before", desc:"Absentee and in-person early voting begins for eligible voters.", status:"upcoming" },
+  { title:"Debate night(s)", date:"2–4 weeks before", desc:"Nationally broadcast debates between the leading candidates.", status:"upcoming" },
+  { title:"Election day", date:"Day of election", desc:"Polling stations open. All eligible registered voters cast their ballots.", status:"upcoming" },
+  { title:"Results declared", date:"Night of / day after", desc:"Votes are counted and winners officially declared by the returning officer.", status:"upcoming" },
+  { title:"Inauguration / swearing in", date:"Weeks to months after", desc:"The elected official takes the oath of office and formally assumes their role.", status:"upcoming" }
+];
+
+const GLOSSARY = [
+  { word:"Ballot", tag:"Voting", def:"The paper or digital interface on which a voter marks their choice. Ballots are secret to protect voter privacy and prevent intimidation." },
+  { word:"By-election", tag:"Process", def:"A special election held to fill a single vacant seat outside of a general election cycle, usually triggered by a resignation, death, or disqualification." },
+  { word:"Caucus", tag:"Process", def:"A local meeting where members of a political party gather to discuss and vote on their preferred candidate, used in some countries instead of a primary election." },
+  { word:"Constituency", tag:"Structure", def:"A geographic area represented by one elected official. Voters in each constituency choose one representative (in first-past-the-post systems)." },
+  { word:"Electoral college", tag:"Structure", def:"A body of electors whose votes formally determine the president, used in the United States. Each state has a number of electors proportional to its congressional representation." },
+  { word:"Electoral roll", tag:"Administration", def:"The official list of all registered voters in a jurisdiction. Only those on the roll are eligible to cast a ballot on election day." },
+  { word:"Exit poll", tag:"Reporting", def:"A survey of voters conducted immediately after they leave polling stations, used to predict results before official counts are complete." },
+  { word:"First-past-the-post", tag:"Voting system", def:"A simple plurality voting system where the candidate with the most votes wins, even without an absolute majority. Used in the UK, India, USA, and Canada." },
+  { word:"Gerrymandering", tag:"Structure", def:"The manipulation of constituency boundaries to favour a particular party or group, often resulting in oddly shaped districts designed to maximise or dilute certain votes." },
+  { word:"Hung parliament", tag:"Outcome", def:"A situation where no single party wins an outright majority of seats, requiring coalition negotiations or minority government arrangements." },
+  { word:"Incumbent", tag:"Candidates", def:"The current holder of an elected office who is running for re-election in the same position." },
+  { word:"Manifesto", tag:"Campaign", def:"A formal published statement of a party's intentions, policies, and values, presented to voters during the election campaign." },
+  { word:"Polling station", tag:"Voting", def:"A designated location where registered voters in a specific area go to cast their ballots on election day." },
+  { word:"Proportional representation", tag:"Voting system", def:"An electoral system where parties gain seats roughly proportional to their share of the total vote, aiming for greater representation of minority views." },
+  { word:"Returning officer", tag:"Administration", def:"The official responsible for running an election in a constituency, counting votes, and declaring the official result." },
+  { word:"Spoilt ballot", tag:"Voting", def:"A ballot paper that is invalid because it is unclear, blank, or intentionally defaced. Spoilt ballots are counted separately but do not contribute to any candidate's total." },
+  { word:"Swing", tag:"Analysis", def:"The shift in support from one party to another between elections, expressed as a percentage. A swing of 5% from Party A to Party B means Party A lost 5 points and Party B gained 5 points." },
+  { word:"Turnout", tag:"Analysis", def:"The percentage of eligible voters who actually cast a ballot. High turnout generally signals greater civic engagement and legitimacy of the result." }
+];
+
+let selectedPhase = 0;
+let chatHistory = [];
+let isTyping = false;
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  window.trackEvent?.('tab_view', { tab_name: name });
+}
+
+function renderPhases() {
+  document.getElementById('phase-grid').innerHTML = PHASES.map((p, i) =>
+    `<div class="phase-card${i===selectedPhase?' selected':''}" onclick="selectPhase(${i})">
+      <div class="phase-num">${p.num}</div>
+      <div class="phase-title">${p.title}</div>
+      <div class="phase-duration">${p.duration}</div>
+    </div>`
+  ).join('');
+  renderPhaseDetail();
+}
+
+function selectPhase(i) {
+  selectedPhase = i;
+  renderPhases();
+  window.trackEvent?.('phase_selected', { phase_title: PHASES[i].title, phase_index: i });
+}
+
+function renderPhaseDetail() {
+  const p = PHASES[selectedPhase];
+  document.getElementById('phase-detail').innerHTML = `
+    <h3>${p.title}</h3>
+    <p>${p.desc}</p>
+    <ul class="steps-list">
+      ${p.steps.map((s,i) => `<li><div class="step-dot"><span>${i+1}</span></div><span>${s}</span></li>`).join('')}
+    </ul>`;
+}
+
+function renderTimeline() {
+  document.getElementById('tl-items').innerHTML = TIMELINE_ITEMS.map((item, i) => {
+    const badgeLabel = item.status === 'done' ? 'Completed' : item.status === 'active-tl' ? 'In progress' : 'Upcoming';
+    const badgeClass = item.status === 'active-tl' ? 'active' : item.status;
+    return `<div class="tl-item ${item.status}" onclick="toggleTL(${i})">
+      <div class="tl-dot"></div>
+      <div class="tl-content">
+        <div class="tl-head">
+          <span class="tl-title">${item.title}</span>
+          <span class="tl-date">${item.date}</span>
+        </div>
+        <div class="tl-desc" id="tl-desc-${i}">${item.desc}</div>
+        <span class="tl-badge ${badgeClass}">${badgeLabel}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleTL(i) {
+  const desc = document.getElementById('tl-desc-' + i);
+  desc.style.display = desc.style.display === 'block' ? 'none' : 'block';
+}
+
+function renderGlossary(filter = '') {
+  const lower = filter.toLowerCase();
+  const filtered = GLOSSARY.filter(g => !lower || g.word.toLowerCase().includes(lower) || g.def.toLowerCase().includes(lower));
+  document.getElementById('glossary-grid').innerHTML = filtered.length
+    ? filtered.map(g => `<div class="term-card" onclick="this.classList.toggle('open')">
+        <div class="term-head">
+          <span class="term-word">${g.word}</span>
+          <span class="term-tag">${g.tag}</span>
+        </div>
+        <div class="term-def">${g.def}</div>
+      </div>`).join('')
+    : '<p class="no-results">No matching terms found.</p>';
+}
+
+function filterGlossary() {
+  renderGlossary(document.getElementById('glossary-search').value);
+}
+
+function addMsg(role, text) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  div.innerHTML = `<div class="msg-avatar">${role === 'bot' ? 'EG' : 'You'}</div><div class="msg-bubble">${text}</div>`;
+  document.getElementById('chat-history').appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth' });
+}
+
+function showTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot'; div.id = 'typing-indicator';
+  div.innerHTML = `<div class="msg-avatar">EG</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  document.getElementById('chat-history').appendChild(div);
+  div.scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+async function sendChat() {
+  const input = document.getElementById('chat-input');
+  const q = input.value.trim();
+  if (!q || isTyping) return;
+  input.value = '';
+  sendQ(q);
+}
+
+async function sendQ(question) {
+  if (isTyping) return;
+  isTyping = true;
+  document.getElementById('send-btn').disabled = true;
+
+  addMsg('user', question);
+  chatHistory.push({ role: 'user', content: question });
+  showTyping();
+  window.trackEvent?.('question_asked', { question_text: question.slice(0, 100) });
+
+  const systemPrompt = `You are a clear, authoritative, and friendly election guide assistant. Your role is to help users understand election processes, democratic systems, timelines, and key terms.
+
+Rules:
+- Be concise but thorough — 2-4 sentences for simple questions, up to 8 for complex ones
+- Use plain, accessible language — no unexplained jargon
+- Be strictly non-partisan and neutral on all political matters
+- Focus on process, structure, and civic facts — not opinions or policy positions
+- If asked about a specific country, answer for that country; otherwise give a general democratic overview
+- Write in flowing prose only — no markdown headers or bullet points
+- Be warm and encouraging`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || "I couldn't generate a response. Please try again.";
+    hideTyping();
+    addMsg('bot', reply);
+    chatHistory.push({ role: 'assistant', content: reply });
+  } catch (e) {
+    hideTyping();
+    addMsg('bot', "There was an issue connecting. Please check your connection and try again.");
+  }
+
+  isTyping = false;
+  document.getElementById('send-btn').disabled = false;
+}
+
+// Init
+renderPhases();
+renderTimeline();
+renderGlossary();
+addMsg('bot', "Hello! I'm your election guide. Ask me anything about the democratic process — how elections work, what different terms mean, how votes are counted, and more. Or tap a quick question above to get started.");
+</script>
+</body>
+</html>
