@@ -30,57 +30,6 @@ Open `index.html` in any modern browser, or deploy to Firebase Hosting (see belo
 | `phase_selected` | User clicks a phase card | `phase_title`, `phase_index` |
 | `question_asked` | User sends a chat message | `question_text` (first 100 chars) |
 
-## Setup
-
-### Step 1 — Add Firebase config
-
-1. Go to [console.firebase.google.com](https://console.firebase.google.com)
-2. Click **Add project** → name it `election-guide` → enable Google Analytics
-3. In the project, go to **Project Settings** → **Your apps** → click the `</>` Web icon
-4. Register the app and copy the `firebaseConfig` object
-5. In `index.html`, replace the placeholder `firebaseConfig` values with your real ones:
-
-```js
-const firebaseConfig = {
-  apiKey: "AIzaSy...",
-  authDomain: "election-guide-xxxxx.firebaseapp.com",
-  projectId: "election-guide-xxxxx",
-  storageBucket: "election-guide-xxxxx.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abc123",
-  measurementId: "G-XXXXXXXXXX"
-};
-```
-
-### Step 2 — Deploy to Firebase Hosting
-
-```bash
-# Install Firebase CLI
-npm install -g firebase-tools
-
-# Login to Google account
-firebase login
-
-# Deploy to Firebase Hosting
-firebase deploy --only hosting
-```
-
-Your app will be live at:
-`https://YOUR_PROJECT_ID.web.app`
-
-### Step 3 — Add Claude API key (for AI chat)
-
-In `index.html`, find the fetch call and add your API key:
-
-```js
-headers: {
-  'Content-Type': 'application/json',
-  'x-api-key': 'YOUR_ANTHROPIC_API_KEY',
-  'anthropic-version': '2023-06-01',
-  'anthropic-dangerous-direct-browser-access': 'true'
-}
-```
-
 > **Note:** For production, proxy API calls through a Firebase Cloud Function to keep your key secure.
 
 ## Testing
@@ -103,7 +52,6 @@ Manual test scenarios to verify core and edge case paths:
 - Vanilla HTML, CSS, JavaScript — zero build dependencies
 - Firebase Hosting + Firebase Analytics (Google Cloud)
 - Google Fonts API (DM Serif Display + DM Sans)
-- Anthropic Claude API (`claude-sonnet-4-20250514`)
 
 ## License
 
